@@ -13,8 +13,10 @@ def is_x_root? opt = {}
   end
 end
 
+puts "Function in ruby terms:"
+funcion = gets.chomp
 f = lambda { |x|
-  (Math::E ** ((3*x) - 12)) + x * Math::cos(3*x) - (x**2) + 4
+  eval function.gsub 'x', "#{x}"
 }
 
 puts "Enter the smaller x:"
