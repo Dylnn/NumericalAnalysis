@@ -17,17 +17,21 @@ g = lambda { |x|
  eval function_gx.gsub 'x', "#{x}"
 }
 
-tolerancy = gets.to_f
+puts 'Tolerance:'
+tolerance = gets.to_f
+
 puts 'Enter xa:'
 x_a = gets.to_f
+
+puts 'Iterations'
 num_iter = gets.to_i
 
 f_eval_x = f.call x_a
 counter = 0
-error = tolerancy + 1
+error = tolerance + 1
 x_n = 0
 while f_eval_x != 0 &&
-  error > tolerancy &&
+  error > tolerance &&
   counter < num_iter
     puts "iter = #{counter}\n xn=#{x_n}\n f(xn)=#{f_eval_x}\n Error=#{error}\n\n"
     x_n = g.call x_a
@@ -39,8 +43,8 @@ end
 
 if f_eval_x == 0
   puts "x_a=#{x_n} is root"
-elsif error < tolerancy
-  puts "x_a is a root aproximation with tolerancy= #{tolerancy}"
+elsif error < tolerance
+  puts "x_a=#{x_a} is a root approximation with tolerance= #{tolerance}"
 else
   puts "the method failed on iteration ##{counter}"
 end

@@ -14,7 +14,7 @@ def is_x_root? opt = {}
 end
 
 puts "Function in ruby terms:"
-funcion = gets.chomp
+function = gets.chomp
 f = lambda { |x|
   eval function.gsub 'x', "#{x}"
 }
@@ -61,7 +61,7 @@ unless is_x_root? xi: f_eval_x_infer
           # si f(x_infer) * f(x_super) es menor que 0 hubo cambio de signo
           # remplazar la x superior por la x media, de lo contrario
           # remplazar la x inferior por la x media
-          if f_eval_x_infer * f_eval_x_super < 0
+          if f_eval_x_infer * f_eval_xm < 0
             x_super = x_media
             f_eval_x_super = f_eval_xm
           else
