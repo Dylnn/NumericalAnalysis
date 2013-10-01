@@ -11,7 +11,19 @@ end
 puts 'Funtion in ruby terms:'
 function = gets.chomp
 f = lambda{ |x|
- eval function.gsub 'x', "#{x}"
+  begin
+    eval function.gsub 'x', "#{x}"
+  rescue Math::DomainError => ex
+    puts "#{ex.message}"
+    case ex.message
+    when /sqrt/
+      puts "Imaginary root when x=#{x}"
+    end
+    exit(1)
+  rescue ZeroDivisionError => ZeroE
+    puts "There is a zero division"
+    exit(1)
+  end
 }
 
 puts 'Enter x0:'

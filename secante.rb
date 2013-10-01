@@ -48,11 +48,13 @@ else
     puts "x1= #{x1} is root"
   elsif error < tolerance
     puts "x1= #{x1} is a root approximation with tolerance = #{tolerance}"
-  elsif den.zero?
-    puts "there's possibly a multiple root"
   else
     puts "operation failed in iteration##{num_iter}"
   end
+  if den.zero? || den < 0.00001
+      puts "there's possibly a multiple root"
+  end
 end
+
 
 # (Math::E ** x) - (5 * x) + 2

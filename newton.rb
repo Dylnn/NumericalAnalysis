@@ -1,4 +1,4 @@
-#!/usr/bin/env ruby -wKU
+#!/usr/bin/env ruby
 
 puts "Enter Tolerance:"
 tolerance = gets.to_f
@@ -44,8 +44,11 @@ if f_x.zero?
   puts "x0= #{x0} is root"
 elsif error < tolerance
   puts "x1= #{x1} is a root approximation with tolerance = #{tolerance}"
-elsif is_x_root? df_x: df_x
-  puts "x1= #{x1} it's possibly a multiple root"
 else
   puts "operation failed in iteration##{num_iter}"
+end
+
+puts "derivative: #{df_x}"
+if df_x.zero? or df_x < 0.00001
+  puts "x1= #{x1} it's possibly a multiple root"
 end

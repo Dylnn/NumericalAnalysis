@@ -3,13 +3,37 @@
 puts 'Enter f(x):'
 function_fx = gets.chomp
 f = lambda{ |x|
+  begin
   eval function_fx.gsub 'x', "#{x}"
+  rescue Math::DomainError => ex
+    puts "#{ex.message}"
+    case ex.message
+    when /sqrt/
+      puts "Imaginary root when x=#{x}"
+    end
+    exit(1)
+  rescue ZeroDivisionError => ZeroE
+    puts "There is a zero division"
+    exit(1)
+  end
 }
 
 puts 'Enter g(x):'
 function_gx = gets.chomp
 g = lambda { |x| 
- eval function_gx.gsub 'x', "#{x}"
+  begin
+  eval function_gx.gsub 'x', "#{x}"
+  rescue Math::DomainError => ex
+    puts "#{ex.message}"
+    case ex.message
+    when /sqrt/
+      puts "Imaginary root when x=#{x}"
+    end
+    exit(1)
+  rescue ZeroDivisionError => ZeroE
+    puts "There is a zero division"
+    exit(1)
+  end
 }
 
 puts 'Tolerance:'
