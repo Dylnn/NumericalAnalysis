@@ -30,7 +30,8 @@ class Matrix
             # end
             # @matriz = [ [14,6,-2,3,12], [3,15,2,-5,32], [-7,4,-23,2,-24], [1,-3,-2,16,14] ]
             # @matriz = [ [-7,2,-3,4,-12], [5,-1,14,-1,13], [1,9,-7,5,31], [-12,13,-8,-4,-32] ]
-            @matriz = [ [-7,2,-3,4,-12], [5,-1,14,-1,13], [1,9,-7,13,31], [-12,13,-8,-4,-32] ]
+            # @matriz = [ [-7,2,-3,4,-12], [5,-1,14,-1,13], [1,9,-7,13,31], [-12,13,-8,-4,-32] ]
+            @matriz = [ [4,3,-2,-7,20], [3,12,8,-3,18], [2,3,-9,2,31], [1,-2,-5,6,12] ]
       end
 
       def self.imprimir matrix
@@ -122,24 +123,27 @@ class Matrix
             @simetrica = false
       end
 
-      def gauss_simple pos_i = 0, pos_j = 0
+      def gauss_simple pos_i = 0, pos_j = 0, matrix
+            @matriz_L.matriz[pos_i][pos_j] = 1 if @matriz_L 
             return if pos_i >= @n - 1 || pos_j >= @m - 1
             unless @matriz[pos_i][pos_j].zero?
                   temp = pos_i
                   while temp < @n - 1 do
-                          multiplicador = (@t_superior.matriz[temp + 1][pos_j]).fdiv(@t_superior.matriz[pos_i][pos_j])
-                          vector1 = @t_superior.matriz[pos_i].map { |value| value * multiplicador }
-                          @t_superior.matriz[temp + 1].map! { |value| value - vector1.shift }
+                          multiplicador = (matrix.matriz[temp + 1][pos_j]).fdiv(matrix.matriz[pos_i][pos_j])
+                          @matriz_L.matriz[temp + 1][pos_j] = multiplicador if @matriz_L
+                          vector1 = matrix.matriz[pos_i].map { |value| value * multiplicador }
+                          matrix.matriz[temp + 1].map! { |value| value - vector1.shift }
                           temp += 1
                   end
+                  add_zeros(@n - 1) if @matriz_L
             end
-            gauss_simple pos_i + 1, pos_j + 1
+            gauss_simple pos_i + 1, pos_j + 1, matrix
       end
 
       def triangular_superior
             if @t_superior.nil?
                    @t_superior ||= self.clone
-                   gauss_simple
+                   gauss_simple @t_superior
             end
             @t_superior
       end
@@ -226,6 +230,28 @@ class Matrix
         pivoteo_total pos_i + 1, pos_j + 1, x_vector
       end
 
+      def add_zeros times_0
+        for i in 0 ... times_0
+          @matriz_L.matriz[i].push 0
+        end
+        @matriz_L.matriz.compact!
+      end
+
+      def factorizacion_matrices
+        @matriz_U ||= self.clone
+        @matriz_L  ||= Matrix.new @n, @m - 1, Array.new(@n) { Array.new }
+        gauss_simple @matriz_U
+        Matrix.imprimir @matriz_U
+        Matrix.imprimir @matriz_L
+        # awesome_print @matriz_L.matriz
+      end
+
+      def self.sustitucion_regresiva matrix
+        for n in -1 .. 0
+          
+        end
+      end
+
       def triangular_inferior
         
       end
@@ -236,4 +262,5 @@ test = Matrix.new 4, 5
 # Matrix.imprimir test.transpuesta
 # Matrix.imprimir test.triangular_superior
 # Matrix.imprimir test.triangular_superior_pivoteo
-Matrix.imprimir test.triangular_superior_pivoteo
+# Matrix.imprimir test.factorizacion_matrices
+test.factorizacion_matrices
