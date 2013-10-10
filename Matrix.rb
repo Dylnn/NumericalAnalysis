@@ -198,20 +198,21 @@ class Matrix
         return mayor, pos_fila, pos_columna
       end
 
-      def rotar_columnas matrix, mayor, from_fila, from_col, col_mayor
+      def rotar_columnas matrix, from_fila, from_col, col_mayor
         for _fila in from_fila ... @n
           matrix.matriz[_fila][from_col], matrix.matriz[_fila][col_mayor] =
                           matrix.matriz[_fila][col_mayor], matrix.matriz[_fila][from_col]
         end
       end
 
-      def pivoteo_total pos_i = 0, pos_j = 0
+      def pivoteo_total pos_i = 0, pos_j = 0, x_vector = nil
         x_vector ||= (1 .. @n).to_a
         return if pos_i >= @n - 1 || pos_j >= @m - 1
         mayor, fila_mayor, col_mayor = seleccionar_mayor @t_superior, pos_i, pos_j 
         @t_superior.matriz[pos_i], @t_superior.matriz[fila_mayor] =
                           @t_superior.matriz[fila_mayor], @t_superior.matriz[pos_i]
-        rotar_columnas @t_superior, mayor, pos_i, pos_j, col_mayor
+        rotar_columnas @t_superior, pos_i, pos_j, col_mayor
+        x_vector[pos_j], x_vector[col_mayor] = x_vector[col_mayor], x_vector[pos_j]
         temp = pos_i
         raise "No hay solucion unica" if mayor == 0
         while temp < @n - 1 do
@@ -221,7 +222,8 @@ class Matrix
               temp += 1
         end
         Matrix.imprimir @t_superior
-        pivoteo_total pos_i + 1, pos_j + 1
+        awesome_print x_vector
+        pivoteo_total pos_i + 1, pos_j + 1, x_vector
       end
 
       def triangular_inferior
