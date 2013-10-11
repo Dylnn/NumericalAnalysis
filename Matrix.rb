@@ -2,7 +2,7 @@
 require "awesome_print"
 class Matrix
       attr_accessor :matriz,:n,:m
-      attr_reader :simetrica
+      attr_reader :simetrica, :matriz_L, :matriz_U
       def initialize(n,m,matriz = nil)
             @n = n
             @m = m
@@ -30,10 +30,10 @@ class Matrix
             #              @matriz[i][j] = dato
             #       end
             # end
-            @matriz = [ [14,6,-2,3,12], [3,15,2,-5,32], [-7,4,-23,2,-24], [1,-3,-2,16,14] ]
+            # @matriz = [ [14,6,-2,3,12], [3,15,2,-5,32], [-7,4,-23,2,-24], [1,-3,-2,16,14] ]
             # @matriz = [ [-7,2,-3,4,-12], [5,-1,14,-1,13], [1,9,-7,5,31], [-12,13,-8,-4,-32] ]
             # @matriz = [ [-7,2,-3,4,-12], [5,-1,14,-1,13], [1,9,-7,13,31], [-12,13,-8,-4,-32] ]
-            # @matriz = [ [4,3,-2,-7,20], [3,12,8,-3,18], [2,3,-9,2,31], [1,-2,-5,6,12] ]
+            @matriz = [ [4,3,-2,-7,20], [3,12,8,-3,18], [2,3,-9,2,31], [1,-2,-5,6,12] ]
       end
 
       def self.imprimir matrix
@@ -109,9 +109,7 @@ class Matrix
 
       def simetrica?
             return @simetrica unless @simetrica.nil?
-            unless @transpuesta
-                  transpuesta
-            end
+            transpuesta if @transpuesta.nil?
             if matriz.equal? @transpuesta
                   0.upto(@n - 1) do |i|
                         0.upto(@m - 1) do |j|
@@ -128,7 +126,7 @@ class Matrix
       def gauss_simple pos_i = 0, pos_j = 0, matrix
             @matriz_L.matriz[pos_i][pos_j] = 1 if @matriz_L 
             return if pos_i >= @n - 1 || pos_j >= @m - 1
-            unless @matriz[pos_i][pos_j].zero?
+            unless matrix.matriz[pos_i][pos_j].zero?
                   temp = pos_i
                   while temp < @n - 1 do
                           multiplicador = (matrix.matriz[temp + 1][pos_j]).fdiv(matrix.matriz[pos_i][pos_j])
@@ -263,6 +261,12 @@ class Matrix
         end
       end
 
+      def self.sustitucion_progresiva matrix
+        values = matrix.matriz.map{|fila| fila[-1]}
+        values.each.with_index { |value, index| awesome_print "Z#{index} = #{value}"}
+        Matrix.sustitucion_regresiva matrix.matriz_U
+      end
+
       def triangular_inferior
         
       end
@@ -271,8 +275,8 @@ end
 test = Matrix.new 4, 5
 # Matrix.imprimir test
 # Matrix.imprimir test.transpuesta
-Matrix.imprimir test.triangular_superior
+# Matrix.imprimir test.triangular_superior
 # Matrix.imprimir test.triangular_superior_pivoteo
-# Matrix.imprimir test.factorizacion_matrices
-# test.factorizacion_matrices
-Matrix.sustitucion_regresiva test.triangular_superior
+test.factorizacion_matrices
+Matrix.sustitucion_progresiva test
+# Matrix.sustitucion_regresiva test.triangular_superior
