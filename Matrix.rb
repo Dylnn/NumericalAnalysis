@@ -14,6 +14,8 @@ class Matrix
                   @transpuesta = nil
                   @simetrica = nil
                   @t_superior = nil
+                  @matriz_L = nil
+                  @matriz_U = nil
                   transpuesta
                   simetrica?
             end
@@ -28,10 +30,10 @@ class Matrix
             #              @matriz[i][j] = dato
             #       end
             # end
-            # @matriz = [ [14,6,-2,3,12], [3,15,2,-5,32], [-7,4,-23,2,-24], [1,-3,-2,16,14] ]
+            @matriz = [ [14,6,-2,3,12], [3,15,2,-5,32], [-7,4,-23,2,-24], [1,-3,-2,16,14] ]
             # @matriz = [ [-7,2,-3,4,-12], [5,-1,14,-1,13], [1,9,-7,5,31], [-12,13,-8,-4,-32] ]
             # @matriz = [ [-7,2,-3,4,-12], [5,-1,14,-1,13], [1,9,-7,13,31], [-12,13,-8,-4,-32] ]
-            @matriz = [ [4,3,-2,-7,20], [3,12,8,-3,18], [2,3,-9,2,31], [1,-2,-5,6,12] ]
+            # @matriz = [ [4,3,-2,-7,20], [3,12,8,-3,18], [2,3,-9,2,31], [1,-2,-5,6,12] ]
       end
 
       def self.imprimir matrix
@@ -247,8 +249,17 @@ class Matrix
       end
 
       def self.sustitucion_regresiva matrix
-        for n in -1 .. 0
-          
+        tmp = matrix.matriz
+        x_vector = Array.new( matrix.n ){ 0 }
+        i = matrix.n - 1
+        while i >= 0
+          resultado = 0
+          for j in i ... matrix.n
+            resultado += (tmp[i][j] * x_vector[j])
+          end
+          x_vector[i] = (tmp[i][-1] - resultado).fdiv(tmp[i][i])
+          awesome_print "X#{i+1} = #{x_vector[i]}"
+          i -= 1
         end
       end
 
@@ -260,7 +271,8 @@ end
 test = Matrix.new 4, 5
 # Matrix.imprimir test
 # Matrix.imprimir test.transpuesta
-# Matrix.imprimir test.triangular_superior
+Matrix.imprimir test.triangular_superior
 # Matrix.imprimir test.triangular_superior_pivoteo
 # Matrix.imprimir test.factorizacion_matrices
-test.factorizacion_matrices
+# test.factorizacion_matrices
+Matrix.sustitucion_regresiva test.triangular_superior
