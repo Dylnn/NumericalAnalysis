@@ -32,8 +32,8 @@ class Matrix
             # end
             # @matriz = [ [14,6,-2,3,12], [3,15,2,-5,32], [-7,4,-23,2,-24], [1,-3,-2,16,14] ]
             # @matriz = [ [-7,2,-3,4,-12], [5,-1,14,-1,13], [1,9,-7,5,31], [-12,13,-8,-4,-32] ]
-            # @matriz = [ [-7,2,-3,4,-12], [5,-1,14,-1,13], [1,9,-7,13,31], [-12,13,-8,-4,-32] ]
-            @matriz = [ [4,3,-2,-7,20], [3,12,8,-3,18], [2,3,-9,2,31], [1,-2,-5,6,12] ]
+            @matriz = [ [-7,2,-3,4,-12], [5,-1,14,-1,13], [1,9,-7,13,31], [-12,13,-8,-4,-32] ]
+            # @matriz = [ [4,3,-2,-7,20], [3,12,8,-3,18], [2,3,-9,2,31], [1,-2,-5,6,12] ]
       end
 
       def self.imprimir matrix
@@ -162,9 +162,9 @@ class Matrix
 
       def triangular_superior_pivoteo
             if @t_superior.nil?
-                   @t_superior ||= self.clone
-                   # pivoteo_parcial
-                   pivoteo_total
+                   @t_superior ||= self.dup
+                   pivoteo_parcial
+                   # pivoteo_total
             end
             @t_superior
       end
@@ -238,6 +238,7 @@ class Matrix
       end
 
       def factorizacion_matrices
+        # cuidado con el clone, usar dup mejor
         @matriz_U ||= self.clone
         @matriz_L  ||= Matrix.new @n, @m - 1, Array.new(@n) { Array.new }
         gauss_simple @matriz_U
@@ -276,7 +277,8 @@ test = Matrix.new 4, 5
 # Matrix.imprimir test
 # Matrix.imprimir test.transpuesta
 # Matrix.imprimir test.triangular_superior
-# Matrix.imprimir test.triangular_superior_pivoteo
-test.factorizacion_matrices
-Matrix.sustitucion_progresiva test
+Matrix.imprimir test.triangular_superior_pivoteo
+Matrix.sustitucion_regresiva test
+# test.factorizacion_matrices
+# Matrix.sustitucion_progresiva test
 # Matrix.sustitucion_regresiva test.triangular_superior
