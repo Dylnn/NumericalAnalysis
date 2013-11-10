@@ -1,13 +1,23 @@
 require "calculus/version"
-
+$SAFE = 1
 include Math
 module Constants
   TOLERANCE = 1e-10
   X0 = 0
   X1 = 1
+  ERROR = TOLERANCE + 1
+  MAX_ITERATIONS = 100
+  DONT_SCAPE = %r(\A\(*(\w+)((\s|\w|\)|\()*[+-\/\*](\s|\w|\)|\()*)*\z)
 end
 module Calculus
-  @f = lambda { |function, x|  eval function.gsub( 'x', "#{x}" ) }
+  @f = lambda { |function, x|
+    if function =~ Constants::DONT_SCAPE
+      function.untaint
+      eval function.gsub( 'x', "(#{x})" )
+    else
+      raise "Illegal"
+    end
+  }
   class << self
     include Constants
 
@@ -15,19 +25,18 @@ module Calculus
       if decimals.zero? || !decimals.integer?
         num
       else
-        num.round decimals.abs
+        num.round( decimals.abs )
       end
     end
 
-    def incremental_search x0, delta, iterations, function
+    def incremental_search x0, delta, function
         f_eval_x0 = @f.call( function, x0)
         unless f_eval_x0.zero?
           x1 = x0 + delta
           counter = 1
           f_eval_x1 = @f.call( function, x1 )
           while f_eval_x0 * f_eval_x1 > 0 &&
-              counter < iterations
-            # printf "%d\t%4f\t%4f\t%4f\t%4f\n", counter, x0, x1, f_eval_x0, f_eval_x1
+              counter < MAX_ITERATIONS
             x0 = x1
             f_eval_x0 = f_eval_x1
             x1 = x0 + delta
@@ -35,7 +44,7 @@ module Calculus
             counter += 1
           end
           if x1.zero? || x1 <= TOLERANCE
-            return x1
+            return x0, x1
           elsif f_eval_x0 * f_eval_x1 < 0
             return x0, x1
           end
@@ -44,7 +53,7 @@ module Calculus
     end
 
     def bisection range, function, decimals = 0 # range is [x0, x1], from x0 to x1
-        iterations = (log10(range[X1] - range[X0]) - log10(TOLERANCE)).fdiv( log10( 2 ) )
+        iterations = (log10(range[X1] - range[X0]) - log10(TOLERANCE)).fdiv( log10( 2 ) ).ceil
         x_infer, x_super = range
         f_eval_x_infer = @f.call( function, x_infer )
         f_eval_x_super = @f.call( function, x_super )
@@ -56,7 +65,7 @@ module Calculus
           x_media = (x_infer + x_super).fdiv 2
           f_eval_xm = @f.call( function, x_media )
           counter = 1
-          error = TOLERANCE + 1
+          error = ERROR
           while error > TOLERANCE &&
             f_eval_xm != 0 &&
             counter < iterations
@@ -80,15 +89,15 @@ module Calculus
         raise "improper range"
     end
 
-    def fixed_point function_fx, function_gx, initial_x, iterations
+    def fixed_point function_fx, function_gx, initial_x
       x0 = initial_x
       f_eval_x = @f.call( function_fx, x0 )
       counter = 0
-      error = TOLERANCE + 1
+      error = ERROR
       x_n = 0
       while f_eval_x != 0 &&
               error > TOLERANCE &&
-              counter < iterations
+              counter < MAX_ITERATIONS
         x_n = @f.call( function_gx, x0 )
         f_eval_x = @f.call( function_fx, x_n )
         error = ( x_n - x0 ).fdiv( x_n ).abs
@@ -102,8 +111,46 @@ module Calculus
       end
     end
 
-    def false_rule range, iterations
+    def false_rule range, function
+      iterations = (log10(range[X1] - range[X0]) - log10(TOLERANCE)).fdiv( log10( 2 ) ).ceil
+      f_media = lambda do |x_infer, x_super|
+        x_infer - ( @f.call( function, x_infer ) * ( x_super - x_infer ) ).fdiv( @f.call( function, x_super ) - @f.call( function, x_infer ) )
+      end
       x0, x1 = range[X0], range[X1]
+      f_eval_x_infer = @f.call( function, x0 )
+      f_eval_x_super = @f.call( function, x1 )
+      if f_eval_x_infer.zero?
+        return x0
+      elsif f_eval_x_super.zero?
+        return x1
+      elsif f_eval_x_infer * f_eval_x_super < 0
+        x_media = f_media.call( x0, x1 )
+        f_eval_xm =  @f.call( function, x_media )
+        counter = 1
+        error = ERROR
+        while error > TOLERANCE &&
+                f_eval_xm != 0 &&
+                counter < iterations
+          if f_eval_x_infer * f_eval_xm < 0
+            x1 = x_media
+            f_eval_x_super = f_eval_xm
+          else
+            x0 = x_media
+            f_eval_x_infer = f_eval_xm
+          end
+          x_aux = x_media
+          x_media = f_media.call( x0, x1 )
+          f_eval_xm = @f.call( function, x_media )
+          error = ( x_media - x_aux ).abs
+          counter += 1
+        end
+        if f_eval_xm.zero? || error <=  TOLERANCE
+          return x_media
+        else
+          raise "root not found"
+        end
+      end
+      raise "improper range"
     end
   end
 end
